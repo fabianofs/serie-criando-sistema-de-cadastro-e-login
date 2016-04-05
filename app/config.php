@@ -13,6 +13,6 @@
 		'dbname' => 'sistemafs'
 	));
 
-	//$configs->env->development->setURLs();
+	$configs->env->development->auth->setURLs('/sistema/home/', '/sistema/login/');
 
 	return $configs;
