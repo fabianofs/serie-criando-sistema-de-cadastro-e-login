@@ -13,4 +13,6 @@
 		'dbname' => 'sistemafs'
 	));
 
+	//$configs->env->development->setURLs();
+
 	return $configs;
