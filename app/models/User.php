@@ -22,8 +22,12 @@ class User extends \HXPHP\System\Model
 	);
 
 	static $validates_uniqueness_of = array(
-		array('username', 'message' => 'Já existe um usuário com este nome de usuário cadastrado.'),
-		array('email', 'message' => 'Já existe um usuário com este nome de e-mail cadastrado.')
+		array(
+			'username', 'message' => 'Já existe um usuário com este nome de usuário cadastrado.'
+		),
+		array(
+			'email', 'message' => 'Já existe um usuário com este nome de e-mail cadastrado.'
+		)
 	);
 
 	public static function cadastrar(array $post)
