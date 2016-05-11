@@ -9,7 +9,7 @@ class LoginAttempt extends \HXPHP\System\Model
 
 	public static function TentativasRestantes($user_id)
 	{
-		return intval(5-self::TotalDeTentativas());
+		return intval(10-self::TotalDeTentativas($user_id));
 	}
 
 	public static function RegistrarTentativas($user_id)
@@ -31,6 +31,6 @@ class LoginAttempt extends \HXPHP\System\Model
 
 	public static function ExistemTentativas($user_id)
 	{
-		return self::TotalDeTentativas($user_id) < 5 ? true : false;
+		return self::TotalDeTentativas($user_id) < 10 ? true : false;
 	}
 }

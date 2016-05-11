@@ -6,13 +6,14 @@ use HXPHP\System\Tools;
 
 class Request
 {
-	
+
 	/**
 	 * Atributos
 	 * @var null
 	 */
-	public  $controller;
-	public  $action;
+	public  $subfolder = '';
+	public  $controller = 'IndexController';
+	public  $action = 'indexAction';
 	public  $params = array();
 
 	/**
@@ -24,9 +25,9 @@ class Request
 	/**
 	 * Método construtor
 	 */
-	public function __construct($baseURI = '')
+	public function __construct($baseURI = '', $controller_directory = '')
 	{
-		$this->initialize($baseURI);
+		$this->initialize($baseURI, $controller_directory);
 		return $this;
 	}
 
@@ -34,9 +35,9 @@ class Request
 	 * Define os parâmetros do mecanismo MVC
 	 * @return object Retorna o objeto com as propriedades definidas
 	 */
-	public function initialize($baseURI)
+	public function initialize($baseURI, $controller_directory)
 	{
-		if ( ! empty($baseURI)) {
+		if ( ! empty($baseURI) && ! empty($controller_directory)) {
 			$explode = array_values(array_filter(explode('/', $_SERVER['REQUEST_URI'])));
 
 			if (isset($explode[0]) && $explode[0] == str_replace('/', '', $baseURI)) {
@@ -44,23 +45,32 @@ class Request
 				$explode = array_values($explode);
 			}
 
-			if (count($explode) == 0) {
-				$this->controller = 'IndexController';
-				$this->action = 'indexAction';
-
+			if (count($explode) == 0)
 				return $this;
-			}
 
-			if (count($explode) == 1) {
-				$this->controller = Tools::filteredName($explode[0]).'Controller';
-				$this->action = 'indexAction';
-
-				return $this;
-			}
-
-			$this->controller = Tools::filteredName($explode[0]).'Controller';
-			$this->action = lcfirst(Tools::filteredName($explode[1])).'Action';
 			
+			if (file_exists($controller_directory . $explode[0])) {
+				$this->subfolder = $explode[0] . DS;
+				
+				if (isset($explode[1]))
+					$this->controller = Tools::filteredName($explode[1]).'Controller';
+
+				if (isset($explode[2])) {
+					$this->action = lcfirst(Tools::filteredName($explode[2])).'Action';
+
+					unset($explode[2]);
+				}
+			}
+			elseif (count($explode) == 1) {
+				$this->controller = Tools::filteredName($explode[0]).'Controller';
+
+				return $this;
+			}
+			else {
+				$this->controller = Tools::filteredName($explode[0]).'Controller';
+				$this->action = lcfirst(Tools::filteredName($explode[1])).'Action';
+			}
+
 			unset($explode[0], $explode[1]);
 
 			$this->params = array_values($explode);
@@ -139,6 +149,24 @@ class Request
 		return $post[$name];
 	}
 
+    /**
+	 * Obtém os dados da superglobal $_SERVER
+	 * @param  string $name Nome do parâmetro
+	 * @return null         Retorna o array $_SERVER geral ou em um índice específico
+	 */
+    public function server($name = null)
+    {
+        $server = $this->filter($_SERVER, INPUT_SERVER, $this->custom_filters);
+
+        if(!$name)
+            return $server;
+
+        if(!isset($server[$name]))
+            return NULL;
+
+        return $server[$name];
+    }
+
 	/**
 	 * Retorna o método da requisição
 	 * @param  string $value Nome do método
@@ -190,4 +218,20 @@ class Request
 	{
 		return $this->getMethod('HEAD');
 	}
+
+
+    /*
+     * Verifica se os inputs no método requisitado estão no formato correto conforme o array informado $custom_filters
+     *
+     * @return boolean Inputs estão corretos ou não
+     */
+    public function isValid()
+    {
+        $method = $this->getMethod();
+
+        if(!array_search(FALSE, $this->$method()))
+            return TRUE;
+        else
+            return FALSE;
+    }
 }

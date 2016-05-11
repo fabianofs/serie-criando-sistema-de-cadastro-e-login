@@ -37,7 +37,7 @@ class View
 		'js' => array()
 	);
 
-	public function setConfigs(Configs\Config $configs, $controller, $action)
+	public function setConfigs(Configs\Config $configs, $subfolder, $controller, $action)
 	{
 		/**
 		 * Injeção das Configurações
@@ -45,7 +45,7 @@ class View
 		 */
 		$this->configs = $configs;
 		$this->request  = new Http\Request($configs->baseURI);
-		
+
 		/**
 		 * Tratamento das variáveis
 		 */
@@ -60,11 +60,11 @@ class View
 		$view_settings = new \stdClass;
 
 		$default_values = array(
-			'path' => $controller,
+			'path' => $subfolder . $controller,
 			'template' => true,
-			'header' => 'header',
+			'header' => $subfolder . 'header',
 			'file' => $action,
-			'footer' => 'footer',
+			'footer' => $subfolder . 'footer',
 			'title' => $this->configs->title
 		);
 
@@ -241,6 +241,7 @@ class View
 		//Atribuição das constantes
 		define('BASE',   $baseURI);
 		define('ASSETS', $baseURI . 'public/assets/');
+		define('BOWER', $baseURI . 'public/bower_components/');
 		define('IMG',    $baseURI . 'public/img/');
 		define('CSS',    $baseURI . 'public/css/');
 		define('JS',     $baseURI . 'public/js/');

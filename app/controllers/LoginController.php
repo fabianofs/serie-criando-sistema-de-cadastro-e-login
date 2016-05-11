@@ -11,12 +11,16 @@ class LoginController extends \HXPHP\System\Controller
 			$configs->auth->after_logout,
 			true 
 		);
+	}
 
+	public function indexAction()
+	{
 		$this->auth->redirectCheck(ture);
 	}
 
 	public function logarAction()
 	{
+		$this->auth->redirectCheck(ture);
 		$this->view->setFile('index');
 
 		$post = $this->request->post();
@@ -30,10 +34,17 @@ class LoginController extends \HXPHP\System\Controller
 			else{
 				$this->load('Modules\Messages', 'auth');
 				$this->messages->setBlock('alerts');
-				$errors = $this->messages->getByCode($login->code);
+				$errors = $this->messages->getByCode($login->code, array(
+					'message' => $login->tentativas_restantes
+				));
 
 				$this->load('Helpers\Alert', $errors);
 			}
 		}
+	}
+
+	public function sairAction()
+	{
+		return $this->auth->logout();
 	}
 }

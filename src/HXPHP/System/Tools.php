@@ -47,6 +47,9 @@ class Tools
 	 */
 	static function filteredName($input)
 	{
+		$input = explode('?', $input);
+		$input = $input[0];
+		
 		$find    = array(
 			'-',
 			'_'
@@ -56,5 +59,15 @@ class Tools
 			' '
 		);
 		return str_replace(' ', '', ucwords(str_replace($find, $replace, $input)));
+	}
+
+	static function decamelize($cameled, $sep = '-') {
+	    return implode(
+			$sep,
+			array_map(
+				'strtolower',
+				preg_split('/([A-Z]{1}[^A-Z]*)/', $cameled, -1, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY)
+			)
+	    );
 	}
 }
