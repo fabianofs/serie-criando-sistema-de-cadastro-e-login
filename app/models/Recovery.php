@@ -3,9 +3,7 @@
 class Recovery extends \HXPHP\System\Model
 {
 	static $belongs_to = array(
-		array(
-			'user'
-		)
+		array('user')
 	);
 
 	public static function validar($user_email)
@@ -15,10 +13,9 @@ class Recovery extends \HXPHP\System\Model
 		$callback_obj->code = null;
 		$callback_obj->status = false;
 
-
 		$user_exists = User::find_by_email($user_email);
 
-		if (!is_null($user_exists)){
+		if ( !is_null($user_exists)) {
 			$callback_obj->status = true;
 			$callback_obj->user = $user_exists;
 
@@ -29,7 +26,7 @@ class Recovery extends \HXPHP\System\Model
 				)
 			));
 		}
-		else{
+		else {
 			$callback_obj->code = 'nenhum-usuario-encontrado';
 		}
 
@@ -45,14 +42,24 @@ class Recovery extends \HXPHP\System\Model
 
 		$validar = self::find_by_token($token);
 
-		if (!is_null($validar)) {
+		if ( ! is_null($validar)) {
 			$callback_obj->status = true;
 			$callback_obj->user = $validar->user;
 		}
-		else{
+		else {
 			$callback_obj->code = 'token-invalido';
 		}
 
 		return $callback_obj;
+	}
+
+	public static function limpar($user_id)
+	{
+		return self::delete_all(array(
+			'conditions' => array(
+				'user_id = ?',
+				$user_id
+			)
+		));
 	}
 }

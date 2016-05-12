@@ -23,10 +23,12 @@ class User extends \HXPHP\System\Model
 
 	static $validates_uniqueness_of = array(
 		array(
-			'username', 'message' => 'Já existe um usuário com este nome de usuário cadastrado.'
+			'username',
+			'message' => 'Já existe um usuário com este nome de usuário cadastrado.'
 		),
 		array(
-			'email', 'message' => 'Já existe um usuário com este nome de e-mail cadastrado.'
+			'email',
+			'message' => 'Já existe um usuário com este e-mail cadastrado.'
 		)
 	);
 
@@ -78,47 +80,60 @@ class User extends \HXPHP\System\Model
 		$callbackObj->code = null;
 		$callbackObj->tentativas_restantes = null;
 
+
 		$user = self::find_by_username($post['username']);
 
 		if (!is_null($user)) {
 			$password = \HXPHP\System\Tools::hashHX($post['password'], $user->salt);
 
 			if ($user->status === 1) {
-
 				if (LoginAttempt::ExistemTentativas($user->id)) {
-
 					if ($password['password'] === $user->password) {
-
 						$callbackObj->user = $user;
 						$callbackObj->status = true;
+
 						LoginAttempt::LimparTentativas($user->id);
 					}
-					else{
-						
-						if (LoginAttempt::TentativasRestantes($user->id) <= 10){
+					else {
+						if (LoginAttempt::TentativasRestantes($user->id) <= 3) {
 							$callbackObj->code = 'tentativas-esgotando';
 							$callbackObj->tentativas_restantes = LoginAttempt::TentativasRestantes($user->id);
 						}
-						else{
+						else {
 							$callbackObj->code = 'dados-incorretos';
 						}
 						
-						LoginAttempt::RegistrarTentativas($user->id);
+
+						LoginAttempt::RegistrarTentativa($user->id);
 					}
 				}
-				else{
+				else {
 					$callbackObj->code = 'usuario-bloqueado';
+
 					$user->status = 0;
 					$user->save(false);
 				}
 			}
-			else{
+			else {
 				$callbackObj->code = 'usuario-bloqueado';
 			}
 		}
-		else{
+		else {
 			$callbackObj->code = 'usuario-inexistente';
 		}
+
 		return $callbackObj;
+	}
+
+	public static function atualizarSenha($user, $newPassword)
+	{
+		$user = self::find_by_id($user->id);
+
+		$password = \HXPHP\System\Tools::hashHX($newPassword);
+
+		$user->password = $password['password'];
+		$user->salt = $password['salt'];
+
+		return $user->save(false);
 	}
 }
