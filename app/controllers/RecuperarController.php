@@ -90,7 +90,7 @@ class RecuperarController extends \HXPHP\System\Controller
 
 	public function redefinirAction($token)
 	{
-
+		$validarToken = Recovery::validarToken($token);
 	}
 
 	public function alterarSenhaAction($token)
