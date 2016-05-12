@@ -36,6 +36,41 @@ class RecuperarController extends \HXPHP\System\Controller
 			if($validar->status === false){
 				$error = $this->messages->getByCode($validar->code);
 			}
+			else{
+				$this->load(
+					'Services\PasswordRecovery',
+					$this->configs->site->url . $this->configs->baseURI . 'recuperar/redefinir'
+				);
+
+				Recovery::create(array(
+					'user_id' => $validar->user->id,
+					'token' => $this->passwordrecovery->token,
+					'status' => 0
+				));
+
+				$message = $this->messages->messages->getByCode('link-enviado', array(
+					'message' => array(
+						$validar->user->name,
+						$this->passwordrecovery->link,
+						$this->passwordrecovery->token
+					)
+				));
+
+				$this->load('Services\Email');
+				$envioDoEmail = $this->email->send(
+					$validar->user->email,
+					'ADMC - ' . $message['subject'],
+					$message['message'] . 'ADMC',
+					array(
+						'email' => $this->configs->mail->from_mail,
+						'remetente' => $this->configs->mail->from
+					)
+				);
+
+				if ($envioDoEmail = false) {
+					$this->messages->getByCode('email-nao-enviado');
+				}
+			}
 		}
 		else{
 			$error = $this->messages->getByCode('nenhum-usuario-encontrado');
