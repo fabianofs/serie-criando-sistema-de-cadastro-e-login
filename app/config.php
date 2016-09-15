@@ -2,36 +2,76 @@
 	//Constantes
 	$configs = new HXPHP\System\Configs\Config;
 
-	//Globais
-		$configs->global->models->directory = APP_PATH . 'models' . DS;
+	$configs->env->add('development');
 
-		$configs->global->views->directory = APP_PATH . 'views' . DS;
-		$configs->global->views->extension = '.phtml';
+	$configs->env->development->baseURI = '/assembleia/';
 
-		$configs->global->controllers->directory = APP_PATH . 'controllers' . DS;
-		$configs->global->controllers->notFound = 'Error404Controller';
+	$configs->env->development->database->setConnectionData(array(
+		'host' => 'localhost',
+		'user' => 'admin',
+		'password' => 'Fabiano',
+		'dbname' => 'sistemahx'
+	));
 
-		$configs->title = 'ADMC';
+	$configs->env->development->auth->setURLs('/assembleia/home/', '/assembleia/login/');
 
-	//Configurações de Ambiente - Produção
-		$configs->env->add('production');
+	$configs->env->development->menu->setMenus(array(
+		'Home/dashboard' => '%baseURI%/home',
+		'Editar perfil/cog' => '%baseURI%/perfil/editar',
+		'Sair/sign-out' => '%baseURI%/login/sair',
+	), 'user');
 
-		$configs->env->production->baseURI = '/';
+	$configs->env->development->menu->setMenus(array(
+		'Home/dashboard' => '%baseURI%/home',
+		'Usuários/users' => '%baseURI%/usuarios',
+		'Editar perfil/cog' => '%baseURI%/perfil/editar',
+		'Sair/sign-out' => '%baseURI%/login/sair'
+	), 'administrator');
 
-		$configs->env->production->database->setConnectionData(array(
-			'driver' => 'mysql',
-			'host' => 'eleganceparfume.com.br',
-			'user' => 'castical',
-			'password' => 'Fabiano1804',
-			'dbname' => 'kleber',
-			'charset' => 'utf8'
-		));
+	$configs->env->development->menu->setMenus(array(
+		'Home/dashboard' => '%baseURI%/home'
+	));
 
-		$configs->env->production->mail->setFrom(array(
-			'from' => 'Remetente',
-			'from_mail' => 'email@remetente.com.br'
-		));
+	$configs->env->development->menu->setConfigs(array(
+		'container' => 'nav',
+		'container_class' => 'navbar navbar-default',
+		'menu_class' => 'nav navbar-nav'
+	));
+
+	$configs->env->add('production');
+
+	$configs->env->production->baseURI = '/';
+
+	$configs->env->production->database->setConnectionData(array(
+		'host' => 'localhost',
+		'user' => 'hxphp190_sistema',
+		'password' => '^EKI1LK(&kV[',
+		'dbname' => 'hxphp190_sistemahx'
+	));
 
 	$configs->env->production->auth->setURLs('/home/', '/login/');
+
+	$configs->env->production->menu->setMenus(array(
+		'Home/dashboard' => '%baseURI%/home',
+		'Editar perfil/cog' => '%baseURI%/perfil/editar',
+		'Sair/sign-out' => '%baseURI%/login/sair',
+	), 'user');
+
+	$configs->env->production->menu->setMenus(array(
+		'Home/dashboard' => '%baseURI%/home',
+		'Usuários/users' => '%baseURI%/usuarios',
+		'Editar perfil/cog' => '%baseURI%/perfil/editar',
+		'Sair/sign-out' => '%baseURI%/login/sair'
+	), 'administrator');
+
+	$configs->env->production->menu->setMenus(array(
+		'Home/dashboard' => '%baseURI%/home'
+	));
+
+	$configs->env->production->menu->setConfigs(array(
+		'container' => 'nav',
+		'container_class' => 'navbar navbar-default',
+		'menu_class' => 'nav navbar-nav'
+	));
 
 	return $configs;

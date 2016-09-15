@@ -1,7 +1,9 @@
 {
     "name": "Bruno/hxphp",
     "require": {
-        "php-activerecord/php-activerecord": "dev-master"
+        "php-activerecord/php-activerecord": "dev-master",
+        "avbdr/php-bootstrap-form": "dev-master",
+        "verot/class.upload.php": "dev-master"
     },
     "authors": [
         {

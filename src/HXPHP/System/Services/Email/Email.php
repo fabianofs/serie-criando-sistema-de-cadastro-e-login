@@ -6,13 +6,13 @@ class Email
 {
 	private $from = null;
 
-	public function setFrom(array $from = array())
+	public function setFrom(array $from = [])
 	{
 		$this->from = $from;
 
 		return $this;
 	}
-	
+
 	/**
 	 * Envia e-mail
 	 * @param  string $to    E-mail para qual será enviada a mensagem
@@ -26,17 +26,17 @@ class Email
 		$to,
 		$subject,
 		$message,
-		array $from = array(),
+		array $from = [],
 		$accept_html = true
 	)
 	{
 		$to = strtolower($to);
 		$subject = addslashes(trim($subject));
 
-		$message = $accept_html === false ? strip_tags($message) : $message;
+		$message = !($accept_html) ? strip_tags($message) : $message;
 		$message = nl2br($message);
 
-		$from = !is_null($this->from) && empty($from) ? $this->from : $from;
+		$from = ($this->from) && !($from) ? $this->from : $from;
 
 		ksort($from);
 		$from = array_values($from);

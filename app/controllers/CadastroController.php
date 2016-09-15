@@ -4,15 +4,16 @@ class CadastroController extends \HXPHP\System\Controller
 {
 	public function __construct($configs)
 	{
-		parent:: __construct($configs);
+		parent::__construct($configs);
+
 		$this->load(
 			'Services\Auth',
 			$configs->auth->after_login,
 			$configs->auth->after_logout,
-			true 
+			true
 		);
 
-		$this->auth->redirectCheck(ture);
+		$this->auth->redirectCheck(true);
 	}
 
 	public function cadastrarAction()
@@ -35,7 +36,7 @@ class CadastroController extends \HXPHP\System\Controller
 					$cadastrarUsuario->errors
 				));
 			}
-			else{
+			else {
 				$this->auth->login($cadastrarUsuario->user->id, $cadastrarUsuario->user->username);
 			}
 		}

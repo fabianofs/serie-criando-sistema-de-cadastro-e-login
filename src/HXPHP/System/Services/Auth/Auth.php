@@ -48,10 +48,10 @@ class Auth
 		$this->storage  = new Storage\Session;
 
 		$subfolder = str_replace('/', '', $subfolder);
-		$subfolder = empty($subfolder) ? 'default' : $subfolder;
+		$subfolder = !$subfolder ? 'default' : $subfolder;
 
-		if (!isset($after_login[$subfolder]) || !isset($after_logout[$subfolder]))
-			throw new \Exception("Verifique as configuracoes de autenticacao para a subpasta: < $subfolder >", 1);	
+		if (!($after_login[$subfolder]) || !($after_logout[$subfolder]))
+			throw new \Exception("Verifique as configuracoes de autenticacao para a subpasta: < $subfolder >", 1);
 
 		//Configuração
 		$this->url_redirect_after_login = $after_login[$subfolder];
@@ -67,8 +67,9 @@ class Auth
 	 * Autentica o usuário
 	 * @param  integer $user_id  ID do usuário
 	 * @param  string $username  Nome de usuário
+         * @param string $user_role Role do usuário
 	 */
-	public function login($user_id, $username)
+	public function login($user_id, $username, $user_role = null)
 	{
 		$user_id = intval(preg_replace("/[^0-9]+/", "", $user_id));
 		$username = preg_replace("/[^a-zA-Z0-9_\-]+/", "", $username);
@@ -76,9 +77,10 @@ class Auth
 
 		$this->storage->set('user_id', $user_id);
 		$this->storage->set('username', $username);
+        $this->storage->set('user_role', $user_role);
 		$this->storage->set($this->subfolder . '_login_string', $login_string);
 
-		if ($this->redirect === true)
+		if ($this->redirect)
 			return $this->response->redirectTo($this->url_redirect_after_login);
 	}
 
@@ -95,7 +97,7 @@ class Auth
 		setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
 		session_destroy();
 
-		if ($this->redirect === true)
+		if ($this->redirect)
 			return $this->response->redirectTo($this->url_redirect_after_logout);
 	}
 
@@ -105,14 +107,27 @@ class Auth
 	 */
 	public function redirectCheck($redirect = false)
 	{
-		if ($redirect && $this->login_check()) {
+		if ($redirect && $this->login_check())
 			$this->response->redirectTo($this->url_redirect_after_login);
-		}
-		elseif (!$this->login_check()) {
+		elseif (!$this->login_check())
 			if (!$redirect)
 				$this->logout();
-		}
 	}
+
+    /**
+     * Valida a autenticação e redireciona mediante o estado do usuário
+     * @param array $roles Array com roles são permitidas o acesso a esta página
+     */
+    public function roleCheck(array $roles = [])
+    {
+        if($this->login_check())
+        {
+            if(!in_array($this->getUserRole(), $roles))
+                $this->redirectCheck(true);
+        }
+        else
+            $this->response->redirectTo($this->url_redirect_after_logout);
+    }
 
 	/**
 	 * Verifica se o usuário está logado
@@ -125,7 +140,7 @@ class Auth
 			 $this->storage->exists($this->subfolder . '_login_string') ) {
 
 			$login_string = hash('sha512', $this->storage->get('username')
-											 . $this->request->server('REMOTE_ADDR') 
+											 . $this->request->server('REMOTE_ADDR')
 											 . $this->request->server('HTTP_USER_AGENT'));
 
 			if ($login_string == $this->storage->get($this->subfolder . '_login_string'))
@@ -143,4 +158,13 @@ class Auth
 	{
 		return $this->storage->get('user_id');
 	}
+
+    /**
+     * Retorna o role do usuário autenticado
+     * @return string Role do usuário
+     */
+    public function getUserRole()
+    {
+        return $this->storage->get('user_role');
+    }
 }

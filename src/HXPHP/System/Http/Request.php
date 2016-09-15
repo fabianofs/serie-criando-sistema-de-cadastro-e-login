@@ -14,13 +14,13 @@ class Request
 	public  $subfolder = '';
 	public  $controller = 'IndexController';
 	public  $action = 'indexAction';
-	public  $params = array();
+	public  $params = [];
 
 	/**
 	 * Filtros customizados de tratamento
 	 * @var array
 	 */
-	public $custom_filters = array();
+	public $custom_filters = [];
 
 	/**
 	 * Método construtor
@@ -47,7 +47,6 @@ class Request
 
 			if (count($explode) == 0)
 				return $this;
-
 			
 			if (file_exists($controller_directory . $explode[0])) {
 				$this->subfolder = $explode[0] . DS;
@@ -72,7 +71,7 @@ class Request
 			}
 
 			unset($explode[0], $explode[1]);
-
+			
 			$this->params = array_values($explode);
 		}
 	}
@@ -81,7 +80,7 @@ class Request
 	 * Define filtros/flags customizados (http://php.net/manual/en/filter.filters.sanitize.php)
 	 * @param array $custom_filters Array com nome do campo e seu respectivo filtro
 	 */
-	public function setCustomFilters(array $custom_filters = array())
+	public function setCustomFilters(array $custom_filters = [])
 	{
 		return $this->custom_filters = $custom_filters;
 	}
@@ -93,15 +92,15 @@ class Request
 	 * @param  array $custom_filters  Filtros customizados para determinados campos
 	 * @return array                  Constate tratada
 	 */
-	public function filter(array $request, $data, array $custom_filters = array())
+	public function filter(array $request, $data, array $custom_filters = [])
 	{
-		$filters = array();
+		$filters = [];
 
-		foreach ($request as $key => $value) {
-			if ( ! array_key_exists($key, $custom_filters)) {
+		foreach ($request as $key => $value)
+			if (!array_key_exists($key, $custom_filters))
 				$filters[$key] = constant('FILTER_SANITIZE_STRING');
-			}
-		}
+
+
 
 		if (is_array($custom_filters) && is_array($custom_filters))
 			$filters = array_merge($filters,$custom_filters);
@@ -118,13 +117,13 @@ class Request
 	{
 		$get = $this->filter($_GET, INPUT_GET, $this->custom_filters);
 
-		if ( ! $name) {
+		if (!$name)
 			return $get;
-		}
 
-		if ( ! isset($get[$name])) {
+
+		if (!($get[$name]))
 			return null;
-		}
+
 
 		return $get[$name];
 	}
@@ -138,13 +137,12 @@ class Request
 	{
 		$post = $this->filter($_POST, INPUT_POST, $this->custom_filters);
 
-		if ( ! $name) {
+		if (!$name)
 			return $post;
-		}
 
-		if ( ! isset($post[$name])) {
+		if (!($post[$name]))
 			return null;
-		}
+
 
 		return $post[$name];
 	}
@@ -161,8 +159,11 @@ class Request
         if(!$name)
             return $server;
 
-        if(!isset($server[$name]))
+        if(!isset($server[$name]) && !isset($_SERVER[$name]))
             return NULL;
+
+        if (isset($_SERVER[$name]))
+        	return $_SERVER[$name];
 
         return $server[$name];
     }
@@ -176,9 +177,9 @@ class Request
 	{
 		$method = $_SERVER['REQUEST_METHOD'];
 
-		if ($value) {
+		if ($value)
 			return $method == $value;
-		}
+
 
 		return $method;
 	}
@@ -229,9 +230,6 @@ class Request
     {
         $method = $this->getMethod();
 
-        if(!array_search(FALSE, $this->$method()))
-            return TRUE;
-        else
-            return FALSE;
+        return array_search(false, $this->$method(), true) === false ? true : false;
     }
 }

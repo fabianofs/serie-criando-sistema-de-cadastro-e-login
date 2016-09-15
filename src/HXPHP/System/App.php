@@ -23,7 +23,7 @@ class App
 	 * @var object
 	 */
 	public $response;
-	
+
 	/**
 	 * Método Construtor
 	 */
@@ -32,7 +32,7 @@ class App
 		$this->configs  = $configs;
 		$this->request  = new Http\Request($configs->baseURI, $configs->global->controllers->directory);
 		$this->response = new Http\Response;
-		
+
 		return $this;
 	}
 
@@ -44,17 +44,17 @@ class App
 		$cfg = \ActiveRecord\Config::instance();
 		$cfg->set_model_directory($this->configs->models->directory);
 		$cfg->set_connections(
-			array(
+			[
 				'development' => $this->configs->database->driver.'://'
 								.$this->configs->database->user
 								.':'.$this->configs->database->password
 								.'@'.$this->configs->database->host
 								.'/'.$this->configs->database->dbname
 								.'?charset='.$this->configs->database->charset
-			)
+			]
 		);
 	}
-	
+
 	/**
 	 * Executa a aplicação
 	 */
@@ -76,21 +76,21 @@ class App
 		 */
 		$controllerFile = $controllersDir . $subfolder . $controller . '.php';
 
-		if ( ! file_exists($controllerFile))
+		if (!file_exists($controllerFile))
 			$controllerFile = $controllersDir . $subfolder . $notFoundController . '.php';
-		
+
 		//Inclusão do Controller
 		require_once($controllerFile);
 
 		//Verifica se a classe correspondente ao Controller existe
-		if ( ! class_exists($controller)) {
+		if (!class_exists($controller))
 			$controller = $notFoundController;
-		}
+
 
 		$app = new $controller($this->configs);
 
 		//Verifica se a Action requisitada não existe
-		if ( ! method_exists($app, $action))
+		if (!method_exists($app, $action))
 			$action = 'indexAction';
 
 		//Injeção das configurações
@@ -100,7 +100,7 @@ class App
 		/**
 		 * Atribuição de parâmetros
 		 */
-		call_user_func_array(array(&$app, $action), $this->request->params);
+		call_user_func_array([&$app, $action], $this->request->params);
 
 		/**
 		 * Renderização da VIEW

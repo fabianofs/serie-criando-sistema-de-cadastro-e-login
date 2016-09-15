@@ -5,16 +5,17 @@ class RecuperarController extends \HXPHP\System\Controller
 	public function __construct($configs)
 	{
 		parent::__construct($configs);
+
 		$this->load(
 			'Services\Auth',
 			$configs->auth->after_login,
 			$configs->auth->after_logout,
-			true 
+			true
 		);
 
 		$this->auth->redirectCheck(true);
 
-		$this->view->setTitle('SistemaADMC - Altere sua senha');
+		$this->view->setTitle('SistemaHX - Altere sua senha');
 
 		$this->load('Modules\Messages', 'password-recovery');
 		$this->messages->setBlock('alerts');
@@ -32,16 +33,16 @@ class RecuperarController extends \HXPHP\System\Controller
 
 		$error = null;
 
-		if (!is_null($email) && $email !== false){
+		if (!is_null($email) && $email !== false) {
 			$validar = Recovery::validar($email);
 
-			if($validar->status === false){
+			if ($validar->status === false) {
 				$error = $this->messages->getByCode($validar->code);
 			}
-			else{
+			else {
 				$this->load(
 					'Services\PasswordRecovery',
-					$this->configs->site->url . $this->configs->baseURI . 'recuperar/redefinir'
+					$this->configs->site->url . $this->configs->baseURI . 'recuperar/redefinir/'
 				);
 
 				Recovery::create(array(
@@ -54,34 +55,35 @@ class RecuperarController extends \HXPHP\System\Controller
 					'message' => array(
 						$validar->user->name,
 						$this->passwordrecovery->link,
-						$this->passwordrecovery->token
+						$this->passwordrecovery->link
 					)
 				));
 
 				$this->load('Services\Email');
+
 				$envioDoEmail = $this->email->send(
 					$validar->user->email,
-					'ADMC - ' . $message['subject'],
-					$message['message'] . 'ADMC',
+					'HXPHP - ' . $message['subject'],
+					$message['message'] . 'HXPHP',
 					array(
 						'email' => $this->configs->mail->from_mail,
-						'remetente' => $this->configs->mail->from
+						'remetente' => $this->configs->mail->from 
 					)
 				);
 
-				if ($envioDoEmail = false) {
-					$this->messages->getByCode('email-nao-enviado');
+				if ($envioDoEmail === false) {
+					$error = $this->messages->getByCode('email-nao-enviado');
 				}
 			}
 		}
-		else{
+		else {
 			$error = $this->messages->getByCode('nenhum-usuario-encontrado');
 		}
 
-		if(!is_null($error)){
+		if (!is_null($error)) {
 			$this->load('Helpers\Alert', $error);
 		}
-		else{
+		else {
 			$success = $this->messages->getByCode('link-enviado');
 
 			$this->view->setFile('blank');
@@ -99,11 +101,11 @@ class RecuperarController extends \HXPHP\System\Controller
 		if ($validarToken->status === false) {
 			$error = $this->messages->getByCode($validarToken->code);
 		}
-		else{
+		else {
 			$this->view->setVar('token', $token);
 		}
 
-		if (!is_null($error)) {
+		if ( ! is_null($error)) {
 			$this->view->setFile('blank');
 			$this->load('Helpers\Alert', $error);
 		}
@@ -124,7 +126,7 @@ class RecuperarController extends \HXPHP\System\Controller
 		else {
 			$this->view->setVar('token', $token);
 			$password = $this->request->post('password');
-			
+
 			if ( ! is_null($password)) {
 				$atualizarSenha = User::atualizarSenha($validarToken->user, $password);
 
@@ -144,4 +146,5 @@ class RecuperarController extends \HXPHP\System\Controller
 		if ( ! is_null($error))
 			$this->load('Helpers\Alert', $error);
 	}
+	
 }

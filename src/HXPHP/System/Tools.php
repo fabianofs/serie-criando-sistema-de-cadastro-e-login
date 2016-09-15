@@ -12,11 +12,8 @@ class Tools
 	{
 		echo '<pre>';
 
-		if ($dump)
-			var_dump($data);
-		else
-			print_r($data);
-		
+		($dump) ? var_dump($data) : print_r($data);
+
 		echo '</pre>';
 	}
 
@@ -28,16 +25,16 @@ class Tools
 	 */
 	static function hashHX($password, $salt = null)
 	{
-		
-		if (is_null($salt))
+
+		if (!$salt)
 			$salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
 
 		$password = hash('sha512', $password.$salt);
-		
-		return array(
+
+		return [
 			'salt' => $salt,
 			'password' => $password
-		);
+		];
 	}
 
 	/**
@@ -49,17 +46,135 @@ class Tools
 	{
 		$input = explode('?', $input);
 		$input = $input[0];
-		
-		$find    = array(
+
+		$find    = [
 			'-',
 			'_'
-		);
-		$replace = array(
+		];
+		$replace = [
 			' ',
 			' '
-		);
+		];
 		return str_replace(' ', '', ucwords(str_replace($find, $replace, $input)));
 	}
+
+    static function filteredFileName($input)
+    {
+        $input = trim($input);
+
+        //Remove " caso exista
+        $new = str_replace('&#34;', '', $input);
+
+        $find = [
+            '  ',
+            '"',
+            'á',
+            'ã',
+            'à',
+            'â',
+            'ª',
+            'é',
+            'è',
+            'ê',
+            'ë',
+            'í',
+            'ì',
+            'î',
+            'ï',
+            'ó',
+            'ò',
+            'õ',
+            'ô',
+            '°',
+            'º',
+            'ö',
+            'ú',
+            'ù',
+            'û',
+            'ü',
+            'ç',
+            'ñ',
+            'Á',
+            'Ã',
+            'À',
+            'Â',
+            'É',
+            'È',
+            'Ê',
+            'Ë',
+            'Í',
+            'Ì',
+            'Î',
+            'Ï',
+            'Ó',
+            'Ò',
+            'Õ',
+            'Ô',
+            'Ö',
+            'Ú',
+            'Ù',
+            'Û',
+            'Ü',
+            'Ç',
+            'Ñ',
+        ];
+
+        $replace = [
+            '',
+            '',
+            'a',
+            'a',
+            'a',
+            'a',
+            'a',
+            'e',
+            'e',
+            'e',
+            'e',
+            'i',
+            'i',
+            'i',
+            'i',
+            'o',
+            'o',
+            'o',
+            'o',
+            'o',
+            'o',
+            'o',
+            'u',
+            'u',
+            'u',
+            'u',
+            'c',
+            'n',
+            'A',
+            'A',
+            'A',
+            'A',
+            'E',
+            'E',
+            'E',
+            'E',
+            'I',
+            'I',
+            'I',
+            'I',
+            'O',
+            'O',
+            'O',
+            'O',
+            'O',
+            'U',
+            'U',
+            'U',
+            'U',
+            'C',
+            'N',
+        ];
+
+        return strtolower(str_replace(' ', '_', str_replace($find, $replace, $new)));
+    }
 
 	static function decamelize($cameled, $sep = '-') {
 	    return implode(
